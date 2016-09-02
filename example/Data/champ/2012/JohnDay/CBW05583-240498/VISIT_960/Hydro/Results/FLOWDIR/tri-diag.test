@@ -1,0 +1,117 @@
+
+********************************************************************************
+***
+*** Deltares, FLOW2D3D Version 6.01.08.000000, Aug  5 2014, 08:56:52
+***           built from : https://svn.oss.deltares.nl/repos/delft3d/trunk
+***
+***           runid      : test
+***           date,time  : 2015-01-01, 05:02:49
+***
+********************************************************************************
+
+*** MESSAGE Executable for 64-bits platform. 
+*** MESSAGE Double precision computation using reals of kind    8 
+*** MESSAGE Upwind advection scheme only near momentum discharges 
+*** MESSAGE Using UNESCO density formulation by default 
+*** MESSAGE Momentum solver cyclic method is specified 
+*** MESSAGE DRYFLP and DPSOPT both specified in MD-file. Using DPSOPT: MAX 
+*** WARNING Latitude of your model is 0 degrees, model located at equator
+*** WARNING MAP stop time outside simulation period; will be reset 
+*** WARNING HIS stop time outside simulation period; will be reset 
+*** WARNING Comm. stop time outside period for writing file; will be reset 
+*** WARNING Minimum layer thickness (0.1*Dryflc) is too large for the vertical 
+            grid layering. Decrease Dryflc to smaller than     0.0005 m,
+            to avoid problems with the vertical layering.
+*** Restart file written at          1.0000 minutes after ITDATE
+*** Restart file written at          2.0000 minutes after ITDATE
+*** Restart file written at          3.0000 minutes after ITDATE
+*** Restart file written at          4.0000 minutes after ITDATE
+*** Restart file written at          5.0000 minutes after ITDATE
+*** Restart file written at          6.0000 minutes after ITDATE
+*** Restart file written at          7.0000 minutes after ITDATE
+*** Restart file written at          8.0000 minutes after ITDATE
+*** Restart file written at          9.0000 minutes after ITDATE
+*** Restart file written at         10.0000 minutes after ITDATE
+*** Restart file written at         11.0000 minutes after ITDATE
+*** Restart file written at         12.0000 minutes after ITDATE
+*** Restart file written at         13.0000 minutes after ITDATE
+*** Restart file written at         14.0000 minutes after ITDATE
+*** Restart file written at         15.0000 minutes after ITDATE
+*** Restart file written at         16.0000 minutes after ITDATE
+*** Restart file written at         17.0000 minutes after ITDATE
+*** Restart file written at         18.0000 minutes after ITDATE
+*** Restart file written at         19.0000 minutes after ITDATE
+*** Restart file written at         20.0000 minutes after ITDATE
+*** Restart file written at         21.0000 minutes after ITDATE
+*** Restart file written at         22.0000 minutes after ITDATE
+
+*** Simulation finished *******************************************************
+
+Performance timers:
+|---------------------------------------------------------------------|
+|Timer name           |       wall clock      |       CPU time        |
+|                     |-----------------------|-----------------------|
+|                     |       sec     |  %    |       sec     |  %    |
+|---------------------------------------------------------------------|
+|Initialization       |         2.15  |  0.1  |         2.15  |  0.1  | 
+|Simulation           |      2894.51  | 99.9  |      2894.27  | 99.9  | 
+|Close and stop       |         0.07  |  0.0  |         0.07  |  0.0  | 
+|                     |------------- +|----- +|------------- +|----- +|
+|Total                |      2896.74  |100.0  |      2896.49  |100.0  | 
+|---------------------------------------------|-----------------------|
+|Momentum eq.         |       543.94  | 18.8  |       543.92  | 18.8  | 
+|Continuity eq.       |       962.20  | 33.2  |       962.11  | 33.2  | 
+|Transport eq.        |         0.00  |  0.0  |         0.00  |  0.0  | 
+|Turbulence           |        25.73  |  0.9  |        25.72  |  0.9  | 
+|3D Morphology        |         0.00  |  0.0  |         0.00  |  0.0  | 
+|Wait (dd   module)   |         0.00  |  0.0  |         0.00  |  0.0  | 
+|Wait (ext. modules)  |         0.00  |  0.0  |         0.00  |  0.0  | 
+|---------------------------------------------------------------------|
+| Performance = CPU time / (TimeSteps*MMAX*NMAX*KMAX)                 |
+|   TimeSteps   :        8800                                         |
+|   MMAX        :         537                                         |
+|   NMAX        :         673                                         |
+|   KMAX        :           1                                         |
+|   Performance : 0.91075E-06 [sec]                                   |
+|---------------------------------------------------------------------|
+|Explanation:                                                         |
+|                                                                     |
+|Initialization : Everything up to the first time step                |
+|Simulation     : All time steps                                      |
+|Close and stop : Everything after the last time step                 |
+|Total          : FLOW for this subdomain,                            |
+|                 excluding allocation/deallocation of global data    |
+|                                                                     |
+|Momentum eq.   : Part of Simulation ("UZD")                          |
+|Continuity eq. : Part of Simulation ("SUD")                          |
+|Transport eq.  : Part of Simulation ("DIFU")                         |
+|                 Only relevant when constituents are modelled.       |
+|Turbulence     : Part of Simulation ("TURCLO, TRATUR, TUR2D")        |
+|3D Morphology  : Part of Simulation ("EROSED, BOTT3D")               |
+|                 Only relevant when sediments are modelled.          |
+|Wait (dd)      : Part of Initialization, Simulation and Closing.     |
+|                 ("NXTSTP, NXTDRY")                                  |
+|                 Only relevant when DomainDecomposition is used.     |
+|                 Communication with and execution of the "mappers".  |
+|                 Mappers are separate threads, possibly in another   |
+|                 executable, possibly on another node. They copy     |
+|                 data from one subdomain to another.                 |
+|                 FLOWs must wait while the mappers are executing,    |
+|                 mappers must wait while the FLOWs are executing.    |
+|Wait (ext)     : Part of Initialization, Simulation and Closing.     |
+|                 ("SYNC, _TO_, _FROM_")                              |
+|                 Communication with and execution of all "external"  |
+|                 modules:                                            |
+|                 Online WAVES, Online WAQ, Online RTC, Fluid Mud.    |
+|                                                                     |
+|---------------------------------------------------------------------|
+
+
+********************************************************************************
+***
+*** FINISHED    Delft3D-FLOW
+***             runid      : test
+***             date, time : 2015-01-01, 05:51:06
+***
+********************************************************************************
+
