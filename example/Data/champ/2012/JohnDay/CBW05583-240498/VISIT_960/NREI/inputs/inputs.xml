@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model_inputs>
+  <dataDir>/Users/matt/Projects/nar/CHaMP/NREI/example/Data/champ/</dataDir>
+  <hydroResultsDir>Hydro/Results/FLOWDIR</hydroResultsDir>
+  <nreiFunc>/Users/matt/Projects/nar/CHaMP/NREI/src/nreiFunctionsMultiFish.R</nreiFunc>
+  <inLookTab>/Users/matt/Projects/nar/CHaMP/NREI/example/Data/champ/2012/JohnDay/CBW05583-240498/VISIT_960/NREI/inputs/exampleInlookTab.csv</inLookTab>
+</model_inputs>
