@@ -1,2 +1,0 @@
-"VisitID","WatershedName","SiteName","VisitYear","Grad","Area_Wet","DpthBf_Avg","SubD50","est.grid.size","est.sim.duration.h","kroughness","grdreductionfactor","DZ","zreductionfactor","kSpecies","kPreyLength"
-960,"JohnDay","CBW05583-240498",2012,2.356,233.7697,0.15503,29,5873.4400790112,0.0617243073736814,0.003625,2,0.025,2,"steelhead",0.003

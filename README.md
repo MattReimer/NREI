@@ -59,14 +59,24 @@ Once you have an appropriate input lookup table (provided with the example files
 Notepad++), but you could also open the script in the R console.
 3. Make sure location pointers in the script match the file structure of your hard drive. If you pasted the code, data_in,
 data_out, and simulations folders directly to your C:/ drive then no changes should be necessary (but you should still read the points below).
-a. The variable inputs.dir (line 30) should point to the high level directory containing the unzipped Delft3D solution files (e.g., C:/data_in/champ/unzipData).
-b. The variable outputs.dir (line 31) should point to the directory where model outputs are to be written. Note that if you provide a directory that doesn’t exist, it will be created for you upon running the NREI scripts.
-c. The variable nrei.func.fn (line 32) should be the full file path of the `nreiFunctionsMultiFish.R` script on your hard drive.
+a. The variable `inputs.dir` (line 30) should point to the high level directory containing the unzipped Delft3D solution files (e.g., C:/data_in/champ/unzipData).
+b. The variable `outputs.dir` (line 31) should point to the directory where model outputs are to be written. Note that if you provide a directory that doesn’t exist, it will be created for you upon running the NREI scripts.
+c. The variable `nrei.func.fn` (line 32) should be the full file path of the `nreiFunctionsMultiFish.R` script on your hard drive.
 d. The variable in.look.tab (line 54) should be the full file path of the input lookup table you wish to use. For the example files, it should point to exampleInLookTab.csv.
 4. Adjust, if necessary, the number of processor cores to be used during simulation.
-a. The variable sim.cores (line 88) indicates the number of processor cores to be used during simulation. While, in general, distributing the workload across multiple processor cores can decrease the time needed for simulation, there can be a point of diminishing returns and you cannot utilize more cores than your computer has. You can find instructions online to identify the number of processor cores your computer has. Choose a number based on your goals for simulation (i.e., speed vs. using your computer for other things while simulations are running).
+a. The variable `sim.cores` (line 88) indicates the number of processor cores to be used during simulation. While, in general, distributing the workload across multiple processor cores can decrease the time needed for simulation, there can be a point of diminishing returns and you cannot utilize more cores than your computer has. You can find instructions online to identify the number of processor cores your computer has. Choose a number based on your goals for simulation (i.e., speed vs. using your computer for other things while simulations are running).
 5. Save any changes to `runNreiMultiFish.R`, and then open the script in R (if you haven’t already).
-6. Press ctrl + a to select the entire script, then press ctrl + r to send the highlighted text to the R interpreter and begin
+6. Press `ctrl + a` to select the entire script, then press `ctrl + r` to send the highlighted text to the R interpreter and begin
 the simulation. Note: the script can also be run block‐by‐block if desired.
 Note: Users may also wish to activate/deactivate certain model outputs or alter the default fish size, water temperature, or drifting prey concentration values in the model. See below for more information.
 
+
+-----------
+
+## Unix Notes
+
+for OSX need:
+
+```
+brew install unixodbc
+```

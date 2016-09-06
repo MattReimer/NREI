@@ -1,4 +1,4 @@
-
+#!/usr/bin/env Rscript
 #-------------------------------------------------------------------------------
 # Written for Eco Logical Research, Inc. and South Fork Research, Inc.
 # December 2014

@@ -1,10 +1,17 @@
-
-# rm(list = ls())
-
-
+#!/usr/bin/env Rscript
 #---------------------------------------------------------------------------
 # packages, dir and file locations, output preferences, table of inputs
 #---------------------------------------------------------------------------
+
+# Parse command line arguments
+# https://www.r-bloggers.com/passing-arguments-to-an-r-script-from-command-lines/
+# This will make calling the R script from the command line easier.
+args = commandArgs(trailingOnly=TRUE)
+if (length(args)==0) {
+  # stop("At least one argument must be supplied (input file).xml", call.=FALSE)
+  # If there is no parameter we're probably in RStudio so just hard code it as always
+  args = c('./example/Data/champ/2012/JohnDay/CBW05583-240498/VISIT_960/NREI/inputs/inputs.xml_data')
+}
 
 # Rtools will need to be installed for zipping of outputs.  Rtools can be
 #  downloaded and installed manually from:
@@ -13,26 +20,32 @@
 # packages needed
 my.packs <- c(
   'ggplot2', 'RANN', 'foreach', 'doParallel', 'scales', 'car', 'rgl', 
-  'fields', 'data.table', 'dplyr', 'RODBC'
+  'fields', 'data.table', 'dplyr', 'RODBC', 'XML', 'methods'
 )
 
 # if any of them are not installed, install them
 if (any(!my.packs %in% installed.packages()[, 'Package'])) {
   install.packages(
     my.packs[which(!my.packs %in% installed.packages()[, 'Package'])],
-    dependencies = TRUE
+    dependencies = TRUE,
+    repos = "http://cran.us.r-project.org"
   )
 }
 
 # establish locations/directories
 orig.wd <- getwd()  # initial working directory for R
 
-inputs.dir <- 'C:/data_in/champ/unzipData'
-outputs.dir <- 'C:/data_out/nrei'
-nrei.func.fn <- 'C:/code/nrei/nreiFunctionsMultiFish_26May2016.R'
-# inputs.dir <- 'C:/Users/ew/BoxSync/data_in/champ/unzipData'
-# outputs.dir <- 'C:/Users/ew/BoxSync/data_out/nreiMultiFish'
-# nrei.func.fn <- 'C:/Users/ew/BoxSync/code/nreiRectilinear/rectNreiMultiFish/nreiFunctionsMultiFish_26May2016.R'
+# Open the parameters file:
+library(XML)
+result <- xmlParse(file = args[1])
+# Make it into a list
+xml_data <- xmlToList(result)
+
+# Now grab what we need from the file:
+data.dir <- xml_data[["dataDir"]]
+nrei.func.fn <- xml_data[["nreiFunc"]]
+hydroResults.dir <- xml_data[["hydroResultsDir"]]
+inLookTab.dir <- xml_data[["inLookTab"]]
 
 # output preferences
 
@@ -51,7 +64,7 @@ fish.cap.dens.bool <- TRUE
 
 # input lookup table on eric's computer 
 in.look.tab <- read.csv(
-  'C:/simulations/firstNreiSim_26May2016/exampleInlookTab.csv',
+  inLookTab.dir,
   stringsAsFactors = FALSE)
 # head(in.look.tab)
 
@@ -69,7 +82,7 @@ for (site.no in 1:nrow(in.look.tab)) {
   
   # make sure memory is as free as possible; seems necessary for fread function
   #  in the data.table package when working with 32-bit machines
-  keep <- c('in.look.tab', 'site.no', 'orig.wd', 'inputs.dir', 'outputs.dir',
+  keep <- c('in.look.tab', 'site.no', 'orig.wd', 'data.dir', 'hydroResults.dir',
     'nrei.func.fn', 'rad.grid.plots.bool', 'nrei.map.plots.bool',
     'fish.cap.dens.bool'
   )
@@ -269,7 +282,8 @@ for (site.no in 1:nrow(in.look.tab)) {
   my.species <- in.look.tab[site.no, 'kSpecies']
   
   # filename of rectilinear Delft3D results for which you wish to simulate nrei
-  DEMfilename <- file.path(inputs.dir, my.basin, my.site, my.year, my.visit,
+  DEMfilename <- file.path(data.dir, my.year, my.basin, my.site, my.visit, 
+    hydroResults.dir,
     'dem_grid_results.csv')
   # file.exists(DEMfilename)
 
@@ -607,9 +621,11 @@ for (site.no in 1:nrow(in.look.tab)) {
   print(paste(my.basin, my.site, my.year, my.visit, my.species,
     '-- writing raw outputs to file', sep = ' : '))
   
+  my.outputDir <- "NREI/outputs"
+
   # create output dirs for the fish sizes 
-  fl.output.dirs <- file.path(outputs.dir, my.basin, my.site, my.year,
-    my.visit, my.species, fish.size.folder.name)
+  fl.output.dirs <- file.path(data.dir, my.year, my.basin, my.site,
+    my.visit, my.outputDir, my.species, fish.size.folder.name)
 
   if (any(!file.exists(fl.output.dirs))) {
     dirs.to.create <- fl.output.dirs[which(!file.exists(fl.output.dirs))]
