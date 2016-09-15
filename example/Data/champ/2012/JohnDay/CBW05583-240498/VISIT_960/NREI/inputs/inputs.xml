@@ -4,4 +4,9 @@
   <hydroResultsDir>Hydro/Results/FLOWDIR</hydroResultsDir>
   <nreiFunc>/Users/matt/Projects/nar/CHaMP/NREI/src/nreiFunctionsMultiFish.R</nreiFunc>
   <inLookTab>/Users/matt/Projects/nar/CHaMP/NREI/example/Data/champ/2012/JohnDay/CBW05583-240498/VISIT_960/NREI/inputs/exampleInlookTab.csv</inLookTab>
+
+  <rad_grid_plots>FALSE</rad_grid_plots>
+  <nrei_map_plots>FALSE</nrei_map_plots>
+  <fish_cap_dens>FALSE</fish_cap_dens>
+
 </model_inputs>

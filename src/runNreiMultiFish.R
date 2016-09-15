@@ -50,17 +50,17 @@ inLookTab.dir <- xml_data[["inLookTab"]]
 # output preferences
 
 # plots of radial grids (mostly for QAQC on radial grid function)
-rad.grid.plots.bool <- FALSE
+rad.grid.plots.bool <- xml_data[["rad_grid_plots"]]
 
 # a value of TRUE saves nrei maps (.png format) in the directory:
 #  outputs.dir/basin/site/year/visit/species/fish_size/nrei_maps
-nrei.map.plots.bool <- TRUE  # do you want to save nrei maps
+nrei.map.plots.bool <- xml_data[["nrei_map_plots"]]  # do you want to save nrei maps
 
 # a value of TRUE saves capacity and density predictions in the directories:
 #  outputs.dir/basin/site/year/visit/species/fish_size/fish_capacity and
 #  outputs.dir/basin/site/year/visit/species/fish_size/fish_density;
 #  necessary if capacity predictions are desired
-fish.cap.dens.bool <- TRUE
+fish.cap.dens.bool <- xml_data[["fish_cap_dens"]]
 
 # input lookup table on eric's computer 
 in.look.tab <- read.csv(
