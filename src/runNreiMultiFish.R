@@ -2,6 +2,8 @@
 #---------------------------------------------------------------------------
 # packages, dir and file locations, output preferences, table of inputs
 #---------------------------------------------------------------------------
+# for reference, store the current working directory
+sourceDir <- getSrcDirectory(function(dummy) {dummy})
 
 # Parse command line arguments
 # https://www.r-bloggers.com/passing-arguments-to-an-r-script-from-command-lines/
@@ -10,7 +12,8 @@ args = commandArgs(trailingOnly=TRUE)
 if (length(args)==0) {
   # stop("At least one argument must be supplied (input file).xml", call.=FALSE)
   # If there is no parameter we're probably in RStudio so just hard code it as always
-  args = c('./example/Data/champ/2012/JohnDay/CBW05583-240498/VISIT_960/NREI/inputs/inputs.xml_data')
+  args = c('/Users/matt/Projects/nar/CHaMP/NREI/example/Data/champ/2012/JohnDay/CBW05583-240498/VISIT_960/NREI/inputs/inputs.xml')
+  # args = c('./example/Data/champ/2012/JohnDay/CBW05583-240498/VISIT_960/NREI/inputs/inputs.xml_data')
 }
 
 # Rtools will need to be installed for zipping of outputs.  Rtools can be
@@ -42,31 +45,36 @@ result <- xmlParse(file = args[1])
 xml_data <- xmlToList(result)
 
 # Now grab what we need from the file:
-data.dir <- xml_data[["dataDir"]]
-nrei.func.fn <- xml_data[["nreiFunc"]]
-hydroResults.dir <- xml_data[["hydroResultsDir"]]
-inLookTab.dir <- xml_data[["inLookTab"]]
-
+nrei.func.fn <- './nreiFunctionsMultiFish.R'
+visits.list <- xml_data[["Visits"]]
 # output preferences
 
 # plots of radial grids (mostly for QAQC on radial grid function)
-rad.grid.plots.bool <- xml_data[["rad_grid_plots"]]
+rad.grid.plots.bool <- xml_data[["Parameters"]][["RadGridPlots"]]
 
 # a value of TRUE saves nrei maps (.png format) in the directory:
 #  outputs.dir/basin/site/year/visit/species/fish_size/nrei_maps
-nrei.map.plots.bool <- xml_data[["nrei_map_plots"]]  # do you want to save nrei maps
+nrei.map.plots.bool <- xml_data[["Parameters"]][["NREIMapPlots"]]  # do you want to save nrei maps
 
 # a value of TRUE saves capacity and density predictions in the directories:
 #  outputs.dir/basin/site/year/visit/species/fish_size/fish_capacity and
 #  outputs.dir/basin/site/year/visit/species/fish_size/fish_density;
 #  necessary if capacity predictions are desired
-fish.cap.dens.bool <- xml_data[["fish_cap_dens"]]
+fish.cap.dens.bool <- xml_data[["Parameters"]][["FishCapDens"]]
 
-# input lookup table on eric's computer 
-in.look.tab <- read.csv(
-  inLookTab.dir,
-  stringsAsFactors = FALSE)
-# head(in.look.tab)
+#---------------------------------------------------------------------------
+# Harvest the data out of the Access Database and 
+# Create the CSV input file
+#---------------------------------------------------------------------------
+source(nrei.func.fn)
+# Create InlookTab.csv
+trial <- CreateInLookTabFromXML(visits.list)
+names(trial)
+
+in.look.tab <- trial$in.look.tab
+sum(in.look.tab$est.sim.duration.h)
+in.look.tab <- in.look.tab[order(in.look.tab$est.sim.duration.h), ]
+head(in.look.tab)
 
 #---------------------------------------------------------------------------
 # begin looping through sites in in.look.tab
@@ -177,8 +185,8 @@ for (site.no in 1:nrow(in.look.tab)) {
   fl.identifiers <- paste(
     format(round(fls.to.sim * 1000), trim = TRUE, nsmall = 0), 'mm', sep = ''
   )
-
-  # fish weight names
+names
+  # fish weight 
   fw.identifiers <- paste(
     format(round(kFishWeight), trim = TRUE, nsmall = 0), 'g', sep = ''
   )
@@ -1150,74 +1158,3 @@ for (site.no in 1:nrow(in.look.tab)) {
   setwd(orig.wd)    
 
 }
-
-
-# #---------------------------------------------------------------------------
-# # example of using functions in nreiFunctionsMultiFish_xx.R to create an
-#  input lookup table or calculate nrei values, fish locations, and site
-#  capacity/density for non whole number values
-# #---------------------------------------------------------------------------
-
-
-# #---------------------------------------------------------------------
-# # create input lookup table from a table with WatershedName, SiteName,
-# #  VisitYear, and VisitID
-# #---------------------------------------------------------------------
-
-# nrei.func.fn <- 'C:/Users/ew/BoxSync/code/nreiRectilinear/rectNreiMultiFish/nreiFunctionsMultiFish_26May2016.R'
-
-# source(nrei.func.fn)
-
-# trial <- CreateInLookTab(
-#   requested.sites.table.fn <- 'C:/Users/ew/Desktop/exampleNreiFiles/simulations/26May2016/requestedNreiVisitList.csv',
-#   zip.in.data.dir <- 'C:/Users/ew/BoxSync/data_in/champ/zipData',
-#   unzip.in.data.dir <- 'C:/Users/ew/BoxSync/data_in/champ/unzipData',
-#   champ.db.dir <- 'C:/Users/ew/BoxSync/data_in/champ'
-# )
-# names(trial)
-
-# in.look.tab <- trial$ilt.m
-# sum(in.look.tab$est.sim.duration.h)
-# in.look.tab <- in.look.tab[order(in.look.tab$est.sim.duration.h), ]
-# head(in.look.tab)
-
-# write.csv(in.look.tab, file = 'exampleInlookTab.csv',
-#   row.names = FALSE)
-
-
-# #---------------------------------------------------------------------
-# # calculate nrei metrics for non whole number fish sizes, drifts,
-# #  or temperatures
-# #---------------------------------------------------------------------
-
-# # extract nrei values for non whole number values of fish size, drift, and temp 
-# trial <- GetNreiValues(
-#   fish.size.folders.dir = 'C:/Users/ew/BoxSync/data_out/trash3/JohnDay/CBW05583-240498/2012/VISIT_960/steelhead',
-#   fishLength_m = 0.135,
-#   preyConc_noPM3 = 0.65,
-#   temp_C = 18.4
-# )
-# format(head(trial, 100), scientific = FALSE)
-
-# # get predicted fish locations for non whole number values of fish size,
-# #  drift, and temp 
-# trial2 <- GetFishLocations(
-#   fish.size.folders.dir = 'C:/Users/ew/BoxSync/data_out/trash3/JohnDay/CBW05583-240498/2012/VISIT_960/steelhead',
-#   fishLength_m = 0.137,
-#   preyConc_noPM3 = 0.65,
-#   temp_C = 18.4,
-#   nrei.limit_jps = 0.0
-# )
-# head(trial2)
-# nrow(trial2)
-
-# # get predicted capacity (# fish) and density (fish/m2 and fish/m3)
-# trial3 <- GetCapDensPreds(
-#   fish.size.folders.dir = 'C:/Users/ew/BoxSync/data_out/trash3/JohnDay/CBW05583-240498/2012/VISIT_960/steelhead',
-#   fishLength_m = 0.137,
-#   preyConc_noPM3 = 0.65,
-#   temp_C = 18.4,
-#   nrei.limit_jps = 0.0
-# )
-# trial3
-

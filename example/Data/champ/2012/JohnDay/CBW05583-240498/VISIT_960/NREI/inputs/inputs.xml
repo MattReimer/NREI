@@ -1,12 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
-<model_inputs>
-  <dataDir>/Users/matt/Projects/nar/CHaMP/NREI/example/Data/champ/</dataDir>
-  <hydroResultsDir>Hydro/Results/FLOWDIR</hydroResultsDir>
-  <nreiFunc>/Users/matt/Projects/nar/CHaMP/NREI/src/nreiFunctionsMultiFish.R</nreiFunc>
-  <inLookTab>/Users/matt/Projects/nar/CHaMP/NREI/example/Data/champ/2012/JohnDay/CBW05583-240498/VISIT_960/NREI/inputs/exampleInlookTab.csv</inLookTab>
-
-  <rad_grid_plots>FALSE</rad_grid_plots>
-  <nrei_map_plots>FALSE</nrei_map_plots>
-  <fish_cap_dens>FALSE</fish_cap_dens>
-
-</model_inputs>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Inputs>
+  <Visits>
+    <Visit>
+      <HydrolicsResults>/Users/matt/Projects/nar/CHaMP/AWS/CHaMP_AWS/AWS/EC2/Worker/tmp/nrei/QA/2015/Asotin/ASW00001-CC-F2P1BR/VISIT_3431/S0000_1744/Inputs/CSV/HydroModelResults.csv</HydrolicsResults>
+      <OutputDir>/Users/matt/Projects/nar/CHaMP/AWS/CHaMP_AWS/AWS/EC2/Worker/tmp/nrei/QA/2015/Asotin/ASW00001-CC-F2P1BR/VISIT_3431/S0000_1744</OutputDir>
+      <Key>QA/2015/Asotin/ASW00001-CC-F2P1BR/VISIT_3431/Hydro/Results/S0000_1744/dem_grid_results.csv</Key>
+      <Program>CHaMP</Program>
+      <Bucket>champdata</Bucket>
+      <RecordCreated>1479941439854</RecordCreated>
+      <Visit>3431</Visit>
+      <Location>QA</Location>
+      <Year>2015</Year>
+      <Watershed>Asotin</Watershed>
+      <Site>ASW00001-CC-F2P1BR</Site>
+      <Grad>2.356</Grad>
+      <Area_Wet>233.7697</Area_Wet>
+      <DpthBf_Avg>0.15503</DpthBf_Avg>
+      <SubD50>29</SubD50>
+    </Visit>
+  </Visits>
+  <Parameters>
+    <RadGridPlots>FALSE</RadGridPlots>
+    <NREIMapPlots>FALSE</NREIMapPlots>
+    <FishCapDens>FALSE</FishCapDens>
+  </Parameters>
+</Inputs>

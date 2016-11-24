@@ -2585,3 +2585,144 @@ CreateInLookTab <- function(requested.sites.table.fn, zip.in.data.dir,
   )
 
 }  # end of CreateInLookTab function
+
+
+#---------------------------------------------------------------------------
+# Function to create an input lookup table for the nrei model
+#
+# Args:
+#  site.metrics: an List scraped from an XML
+#
+# Returns:
+#  a list containing two data frames; the first is an input table to be used
+#    for simulations; the second is a table of sites for which the requisite
+#    data do not exist 
+#---------------------------------------------------------------------------
+CreateInLookTabFromXML <- function(visits.list) {
+  
+  # blank table to fill in with sites to be run 
+  in.look.tab <- data.frame(character(0), character(0), character(0), character(0), 
+                            numeric(0), numeric(0), numeric(0), numeric(0),
+                            stringsAsFactors=FALSE)
+
+  names(in.look.tab) <- c('WatershedName', 'SiteName', 'VisitYear', 'VisitID', 
+                          'Grad', 'Area_Wet', 'DpthBf_Avg', 'SubD50')
+  
+  # blank table to fill in with sites we can't do 
+  out.reject.tab <- in.look.tab
+  
+  # for each row of the table of requested sites...
+  # site.no <- 19  site.no <- 31  site.no <- site.no + 1
+  for (site.no in length(visits.list)) {
+    
+    my.visit <- as.character(paste('VISIT_', visits.list$Visit$Visit, sep = ''))
+    
+    in.look.tab[site.no,] <- data.frame(visits.list$Visit$Watershed, visits.list$Visit$Site, visits.list$Visit$Year, my.visit,
+                   as.numeric(visits.list$Visit$Grad), 
+                   as.numeric(visits.list$Visit$Area_Wet), 
+                   as.numeric(visits.list$Visit$DpthBf_Avg), 
+                   as.numeric(visits.list$Visit$SubD50), stringsAsFactors=FALSE)
+
+    print(paste('Working on site', site.no, 'of' , length(visits.list), paste(in.look.tab[site.no,], collapse = " : "), sep = ' : '))
+    
+    my.row.hydro.fn <- file.path( visits.list$Visit$HydrolicsResults)
+    
+    # check if the CSV file exists
+    if (file.exists(my.row.hydro.fn)) {
+      print('Hydrolics File Exists')
+    } 
+    
+  }
+  # estimate grid size 
+  in.look.tab$est.grid.size <- 1088.5348 + 
+    (8.0982 * in.look.tab$Area_Wet) + 
+    (23316.3863 * in.look.tab$DpthBf_Avg * 0.8)  # 0.8 is a correction to acct for swith from Thalweg to Bankfull
+  
+  # none qualified in JD, so test this later!!!!
+  if (any(in.look.tab$est.grid.size > 125000)) {
+    
+    in.look.tab[which(in.look.tab$est.grid.size > 125000), 'zreductionfactor'] <- 10
+    
+  }
+  
+  # estimate time to run model
+  in.look.tab$est.sim.duration.h <- (2E-15 * (in.look.tab$est.grid.size ** 3)) - 
+    (1E-10 * (in.look.tab$est.grid.size ** 2)) +
+    (2E-5 * in.look.tab$est.grid.size) -
+    0.0527
+  
+  if (any(is.na(in.look.tab$SubD50))) {
+    
+    mean.d50s <- mvi %>%
+      filter(SubD50 < 350) %>%
+      group_by(WatershedName) %>%
+      summarise(mean.basin.d50 = mean(SubD50), n = n())
+    mean.d50s <- as.data.frame(mean.d50s)
+    
+    rows.to.fix <- which(is.na(in.look.tab$SubD50))
+    
+    for (my.row in rows.to.fix) {
+      
+      my.basin <- in.look.tab[my.row, 'WatershedName']
+      replacement.d50 <- mean.d50s[mean.d50s$WatershedName == my.basin, 'mean.basin.d50']
+      in.look.tab[my.row, 'SubD50'] <- replacement.d50
+      
+    }
+    # in.look.tab[rows.to.fix, ]
+    
+  } 
+  in.look.tab$kroughness <- in.look.tab$SubD50 / 8000  # experimentally determined
+  
+  # set grid reduc fac
+  in.look.tab[in.look.tab$Area_Wet <= 350, 'grdreductionfactor'] <- 2
+  in.look.tab[in.look.tab$Area_Wet > 350 & in.look.tab$Area_Wet <= 3000, 'grdreductionfactor'] <- 3
+  in.look.tab[in.look.tab$Area_Wet > 3000 & in.look.tab$Area_Wet <= 5000, 'grdreductionfactor'] <- 4
+  in.look.tab[in.look.tab$Area_Wet > 5000, 'grdreductionfactor'] <- 5
+  
+  # set DZ and zreductionfactor
+  
+  # Grad > 2
+  in.look.tab[in.look.tab$Grad > 2 & in.look.tab$DpthBf_Avg <= 0.28, 'DZ'] <- 0.025
+  in.look.tab[in.look.tab$Grad > 2 & in.look.tab$DpthBf_Avg <= 0.28, 'zreductionfactor'] <- 2
+  
+  in.look.tab[in.look.tab$Grad > 2 & in.look.tab$DpthBf_Avg > 0.28 & in.look.tab$DpthBf_Avg <= 0.55, 'DZ'] <- 0.05
+  in.look.tab[in.look.tab$Grad > 2 & in.look.tab$DpthBf_Avg > 0.28 & in.look.tab$DpthBf_Avg <= 0.55, 'zreductionfactor'] <- 3
+  
+  in.look.tab[in.look.tab$Grad > 2 & in.look.tab$DpthBf_Avg > 0.55, 'DZ'] <- 0.05
+  in.look.tab[in.look.tab$Grad > 2 & in.look.tab$DpthBf_Avg > 0.55, 'zreductionfactor'] <- 5
+  
+  # Grad in range (0.65, 2]
+  in.look.tab[in.look.tab$Grad > 0.65 & in.look.tab$Grad <= 2 & in.look.tab$DpthBf_Avg <= 0.28, 'DZ'] <- 0.05
+  in.look.tab[in.look.tab$Grad > 0.65 & in.look.tab$Grad <= 2 & in.look.tab$DpthBf_Avg <= 0.28, 'zreductionfactor'] <- 3
+  
+  in.look.tab[in.look.tab$Grad > 0.65 & in.look.tab$Grad <= 2 & in.look.tab$DpthBf_Avg > 0.28 & in.look.tab$DpthBf_Avg <= 0.55, 'DZ'] <- 0.05
+  in.look.tab[in.look.tab$Grad > 0.65 & in.look.tab$Grad <= 2 & in.look.tab$DpthBf_Avg > 0.28 & in.look.tab$DpthBf_Avg <= 0.55, 'zreductionfactor'] <- 3
+  
+  in.look.tab[in.look.tab$Grad > 0.65 & in.look.tab$Grad <= 2 & in.look.tab$DpthBf_Avg > 0.55, 'DZ'] <- 0.05
+  in.look.tab[in.look.tab$Grad > 0.65 & in.look.tab$Grad <= 2 & in.look.tab$DpthBf_Avg > 0.55, 'zreductionfactor'] <- 5
+  
+  # Grad <= 0.65
+  in.look.tab[in.look.tab$Grad <= 0.65 & in.look.tab$DpthBf_Avg <= 0.28, 'DZ'] <- 0.05
+  in.look.tab[in.look.tab$Grad <= 0.65 & in.look.tab$DpthBf_Avg <= 0.28, 'zreductionfactor'] <- 3
+  
+  in.look.tab[in.look.tab$Grad <= 0.65 & in.look.tab$DpthBf_Avg > 0.28 & in.look.tab$DpthBf_Avg <= 0.55, 'DZ'] <- 0.05
+  in.look.tab[in.look.tab$Grad <= 0.65 & in.look.tab$DpthBf_Avg > 0.28 & in.look.tab$DpthBf_Avg <= 0.55, 'zreductionfactor'] <- 5
+  
+  in.look.tab[in.look.tab$Grad <= 0.65 & in.look.tab$DpthBf_Avg > 0.55 & in.look.tab$DpthBf_Avg <= 0.77, 'DZ'] <- 0.075
+  in.look.tab[in.look.tab$Grad <= 0.65 & in.look.tab$DpthBf_Avg > 0.55 & in.look.tab$DpthBf_Avg <= 0.77, 'zreductionfactor'] <- 7
+  
+  in.look.tab[in.look.tab$Grad <= 0.65 & in.look.tab$DpthBf_Avg > 0.77, 'DZ'] <- 0.075
+  in.look.tab[in.look.tab$Grad <= 0.65 & in.look.tab$DpthBf_Avg > 0.77, 'zreductionfactor'] <- 10
+  
+  in.look.tab$kSpecies <- 'steelhead'
+  in.look.tab$kPreyLength <- 0.003
+  
+  
+  return(
+    list(
+      in.look.tab = in.look.tab,
+      out.reject.tab = out.reject.tab
+    )
+  )
+  
+}  # end of CreateInLookTab function
