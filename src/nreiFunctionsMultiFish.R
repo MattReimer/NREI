@@ -6,7 +6,7 @@
 # For information, questions, or suggestions, please contact:
 # Eric Wall
 # c.eric.wall@gmail.com
-#
+#`
 # Description:  A set of functions to implement a net rate of energy intake
 #  model for drift-feeding salmonids. Functions in this script take 
 #  rectilinear hydraulic output, create an on-the-fly 'wall of water' for each
@@ -34,7 +34,7 @@
 #  a 3D grid of the site's wetted points; parallel adaptation of MN's original
 #  Build3DGrid function
 #
-# Args:
+# Args:`
 #  DEMfilename: name of the rectilinear Delft3D results file
 #  DZ: spacing for 3D grid in Z direction (may need to be tighter than X 
 #    and Y direction)
@@ -2601,11 +2601,11 @@ CreateInLookTab <- function(requested.sites.table.fn, zip.in.data.dir,
 CreateInLookTabFromXML <- function(visits.list) {
   
   # blank table to fill in with sites to be run 
-  in.look.tab <- data.frame(character(0), character(0), character(0), character(0), 
+  in.look.tab <- data.frame(character(0), character(0), character(0), character(0), character(0), character(0),
                             numeric(0), numeric(0), numeric(0), numeric(0),
                             stringsAsFactors=FALSE)
 
-  names(in.look.tab) <- c('WatershedName', 'SiteName', 'VisitYear', 'VisitID', 
+  names(in.look.tab) <- c('WatershedName', 'SiteName', 'VisitYear', 'VisitID', 'OutDir', 'HydroResults',
                           'Grad', 'Area_Wet', 'DpthBf_Avg', 'SubD50')
   
   # blank table to fill in with sites we can't do 
@@ -2618,6 +2618,7 @@ CreateInLookTabFromXML <- function(visits.list) {
     my.visit <- as.character(paste('VISIT_', visits.list$Visit$Visit, sep = ''))
     
     in.look.tab[site.no,] <- data.frame(visits.list$Visit$Watershed, visits.list$Visit$Site, visits.list$Visit$Year, my.visit,
+                   visits.list$Visit$OutputDir, visits.list$Visit$HydrolicsResults,
                    as.numeric(visits.list$Visit$Grad), 
                    as.numeric(visits.list$Visit$Area_Wet), 
                    as.numeric(visits.list$Visit$DpthBf_Avg), 
@@ -2625,11 +2626,10 @@ CreateInLookTabFromXML <- function(visits.list) {
 
     print(paste('Working on site', site.no, 'of' , length(visits.list), paste(in.look.tab[site.no,], collapse = " : "), sep = ' : '))
     
-    my.row.hydro.fn <- file.path( visits.list$Visit$HydrolicsResults)
-    
     # check if the CSV file exists
-    if (file.exists(my.row.hydro.fn)) {
+    if (file.exists(visits.list$Visit$HydrolicsResults)) {
       print('Hydrolics File Exists')
+      in.look.tab[site.no, 'HydroResults'] <- file.path( visits.list$Visit$HydrolicsResults)
     } 
     
   }
@@ -2650,6 +2650,8 @@ CreateInLookTabFromXML <- function(visits.list) {
     (1E-10 * (in.look.tab$est.grid.size ** 2)) +
     (2E-5 * in.look.tab$est.grid.size) -
     0.0527
+  
+  library(dplyr)
   
   if (any(is.na(in.look.tab$SubD50))) {
     

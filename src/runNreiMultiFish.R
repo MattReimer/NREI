@@ -83,14 +83,13 @@ head(in.look.tab)
 site.no = 1  # site.no = 4
 for (site.no in 1:nrow(in.look.tab)) {
   
-
   #-------------------------------------------------------
   # cleanup/setup
   #-------------------------------------------------------
   
   # make sure memory is as free as possible; seems necessary for fread function
   #  in the data.table package when working with 32-bit machines
-  keep <- c('in.look.tab', 'site.no', 'orig.wd', 'data.dir', 'hydroResults.dir',
+  keep <- c('in.look.tab', 'site.no', 'orig.wd',
     'nrei.func.fn', 'rad.grid.plots.bool', 'nrei.map.plots.bool',
     'fish.cap.dens.bool'
   )
@@ -286,13 +285,13 @@ names
   my.basin <- in.look.tab[site.no, 'WatershedName']
   my.site <- in.look.tab[site.no, 'SiteName']
   my.year <- in.look.tab[site.no, 'VisitYear']
+  data.dir <- in.look.tab[site.no, 'OutDir']
+  hydroResults.dir <- in.look.tab[site.no, 'HydroResults']
   my.visit <- paste('VISIT_', in.look.tab[site.no, 'VisitID'], sep = '')
   my.species <- in.look.tab[site.no, 'kSpecies']
   
   # filename of rectilinear Delft3D results for which you wish to simulate nrei
-  DEMfilename <- file.path(data.dir, my.year, my.basin, my.site, my.visit, 
-    hydroResults.dir,
-    'dem_grid_results.csv')
+  DEMfilename <- file.path(hydroResults.dir)
   # file.exists(DEMfilename)
 
   # set the length of the average prey item
